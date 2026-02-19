@@ -1,18 +1,23 @@
+// client/src/App.tsx
 import { NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import DashboardPage from "./features/dashboard/DashboardPage";
 import WorkoutDayPage from "./features/workouts/WorkoutDayPage";
+import HistoryPage from "./features/history/HistoryPage";
 import LoginPage from "./auth/LoginPage";
 import SignupPage from "./auth/SignupPage";
 import RequireAuth from "./auth/RequireAuth";
 import { getUser, isLoggedIn, logout } from "./auth/auth";
+import ProgressPage from "./features/progress/ProgressPage";
+
 
 const linkStyle = ({ isActive }: { isActive: boolean }) => ({
-  padding: "8px 12px",
-  borderRadius: 10,
+  padding: "8px 14px",
+  borderRadius: 12,
   textDecoration: "none",
-  border: "1px solid #ddd",
-  background: isActive ? "#f2f2f2" : "transparent",
-  color: "#111",
+  fontWeight: 500,
+  background: isActive ? "var(--primary)" : "transparent",
+  color: isActive ? "white" : "var(--text)",
+  transition: "all 0.2s ease",
 });
 
 export default function App() {
@@ -29,13 +34,16 @@ export default function App() {
     <div>
       <header
         style={{
-          maxWidth: 900,
-          margin: "20px auto 0",
-          padding: "0 16px",
+          maxWidth: 1000,
+          margin: "20px auto",
+          padding: "16px 20px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 12,
+          background: "var(--card)",
+          borderRadius: 16,
+          boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+          border: "1px solid var(--border)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -48,6 +56,12 @@ export default function App() {
               </NavLink>
               <NavLink to="/workouts/day" style={linkStyle}>
                 Workout Day
+              </NavLink>
+              <NavLink to="/history" style={linkStyle}>
+                History
+              </NavLink>
+              <NavLink to="/progress" style={linkStyle}>
+                Progress
               </NavLink>
             </nav>
           )}
@@ -68,6 +82,10 @@ export default function App() {
               </NavLink>
               <NavLink to="/signup" style={linkStyle}>
                 Sign up
+              </NavLink>
+
+              <NavLink to="/progress" style={linkStyle}>
+                Progress
               </NavLink>
             </nav>
           )}
@@ -100,6 +118,22 @@ export default function App() {
             element={
               <RequireAuth>
                 <WorkoutDayPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <RequireAuth>
+                <HistoryPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/progress"
+            element={
+              <RequireAuth>
+                <ProgressPage />
               </RequireAuth>
             }
           />

@@ -5,6 +5,7 @@ import {
   getWorkoutDay,
   upsertWorkoutDay,
   listRecentWorkoutDays,
+  listWorkoutDaysInRange,
 } from "../controllers/workouts.controller.js";
 
 const router = express.Router();
@@ -20,5 +21,8 @@ router.put("/day/:date", upsertWorkoutDay);
 
 // GET /api/workouts/recent?limit=30
 router.get("/recent", listRecentWorkoutDays);
+
+router.get("/range", requireAuth, listWorkoutDaysInRange);
+
 
 export default router;

@@ -1,4 +1,6 @@
+// client/src/features/workouts/WorkoutDayPage.tsx
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { apiGetWorkoutDay, apiUpsertWorkoutDay } from "../../api/workoutsApi";
 
@@ -30,6 +32,10 @@ function todayYYYYMMDD() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+function isValidYYYYMMDD(s: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(s);
+}
+
 const WORKOUT_TYPES = [
   "",
   "Push",
@@ -43,7 +49,13 @@ const WORKOUT_TYPES = [
 ];
 
 export default function WorkoutDayPage() {
-  const [date, setDate] = useState(todayYYYYMMDD());
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const queryDate = searchParams.get("date");
+  const initialDate =
+    queryDate && isValidYYYYMMDD(queryDate) ? queryDate : todayYYYYMMDD();
+
+  const [date, setDate] = useState(initialDate);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +63,18 @@ export default function WorkoutDayPage() {
   const [day, setDay] = useState<WorkoutDay | null>(null);
 
   const safeEntries = useMemo(() => day?.entries ?? [], [day]);
+
+  // Keep URL ?date= in sync with state so History links + refresh work
+  useEffect(() => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("date", date);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [date, setSearchParams]);
 
   async function load(selectedDate: string) {
     setLoading(true);
@@ -205,6 +229,30 @@ export default function WorkoutDayPage() {
 
       setDay(normalized);
       setSuccess("Saved ✅");
+      try {
+        const raw = localStorage.getItem("fitness_recent_cache");
+        const cache = raw ? JSON.parse(raw) : { days: [] };
+
+        const summary = {
+          date: normalized.date,
+          workoutType: normalized.workoutType,
+          exerciseCount: normalized.entries.length,
+        };
+
+        const nextDays = [
+          summary,
+          ...(Array.isArray(cache.days)
+            ? cache.days.filter((x: any) => x.date !== summary.date)
+            : []),
+        ].slice(0, 180);
+
+        localStorage.setItem(
+          "fitness_recent_cache",
+          JSON.stringify({ days: nextDays }),
+        );
+      } catch {
+        // ignore cache errors
+      }
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         const msg =
@@ -238,7 +286,12 @@ export default function WorkoutDayPage() {
           <input
             type="date"
             value={date}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              // If input is cleared (rare), do nothing.
+              if (!next || !isValidYYYYMMDD(next)) return;
+              setDate(next);
+            }}
           />
         </label>
 

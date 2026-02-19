@@ -8,6 +8,8 @@ import authRoutes from "./routes/auth.routes.js";
 import workoutsRoutes from "./routes/workouts.routes.js";
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import progressRoutes from "./routes/progress.routes.js";
+
 
 export function createApp() {
   const app = express();
@@ -37,9 +39,12 @@ export function createApp() {
 
   app.use("/api/auth", authRoutes);
   app.use("/api/workouts", workoutsRoutes);
+  app.use("/api/progress", progressRoutes);
 
   app.use(notFound);
   app.use(errorHandler);
+  
+
 
   return app;
 }
