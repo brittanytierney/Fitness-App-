@@ -8,6 +8,8 @@ import SignupPage from "./auth/SignupPage";
 import RequireAuth from "./auth/RequireAuth";
 import { getUser, isLoggedIn, logout } from "./auth/auth";
 import ProgressPage from "./features/progress/ProgressPage";
+import AdminMealPlansPage from "./features/admin/AdminMealPlansPage";
+import MyMealPlansPage from "./features/mealplans/MyMealPlansPage";
 
 
 const linkStyle = ({ isActive }: { isActive: boolean }) => ({
@@ -57,12 +59,22 @@ export default function App() {
               <NavLink to="/workouts/day" style={linkStyle}>
                 Workout Day
               </NavLink>
+            
               <NavLink to="/history" style={linkStyle}>
                 History
               </NavLink>
               <NavLink to="/progress" style={linkStyle}>
                 Progress
               </NavLink>
+              <NavLink to="/meal-plans" style={linkStyle}>
+                Meal Plans
+              </NavLink>
+
+              {user?.role === "admin" && (
+                <NavLink to="/admin/meal-plans" style={linkStyle}>
+                  Admin Meal Plans
+                </NavLink>
+              )}
             </nav>
           )}
         </div>
@@ -134,6 +146,23 @@ export default function App() {
             element={
               <RequireAuth>
                 <ProgressPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/meal-plans"
+            element={
+              <RequireAuth>
+                <MyMealPlansPage />
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/admin/meal-plans"
+            element={
+              <RequireAuth>
+                <AdminMealPlansPage />
               </RequireAuth>
             }
           />

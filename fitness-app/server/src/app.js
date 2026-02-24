@@ -43,11 +43,12 @@ export function createApp() {
   app.use("/api/auth", authRoutes);
   app.use("/api/workouts", workoutsRoutes);
   app.use("/api/progress", progressRoutes);
+  app.use("/api/meal-plans", mealPlansRoutes);
+  app.use("/api/admin", adminRoutes);
 
   app.use(notFound);
   app.use(errorHandler);
-  app.use("/api/meal-plans", mealPlansRoutes);
-  app.use("/api/admin", adminRoutes);
+  
 
   
 
