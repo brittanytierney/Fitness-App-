@@ -3,7 +3,26 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiGetRecentWorkouts } from "../../api/workoutsApi";
 
-
+function typeColor(type: string) {
+  switch (type) {
+    case "Push":
+      return "#ef4444";
+    case "Pull":
+      return "#3b82f6";
+    case "Legs":
+      return "#22c55e";
+    case "Upper":
+      return "#9333ea";
+    case "Lower":
+      return "#f59e0b";
+    case "Full Body":
+      return "#14b8a6";
+    case "Cardio":
+      return "#ec4899";
+    default:
+      return "#64748b";
+  }
+}
 
 type RecentDay = {
   date: string; // YYYY-MM-DD
@@ -78,7 +97,7 @@ export default function HistoryPage() {
 
   // Quick lookup by date for calendar marking + click
   const byDate = useMemo(() => {
-    const m = new Map<string, RecentDay>();
+    const m = new Map<string, any>();
     for (const d of days) m.set(d.date, d);
     return m;
   }, [days]);
@@ -260,7 +279,18 @@ export default function HistoryPage() {
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {info?.workoutType || "Workout"}
+                        <span
+                          style={{
+                            background: typeColor(info?.workoutType || ""),
+                            color: "white",
+                            padding: "2px 6px",
+                            borderRadius: 999,
+                            fontSize: 10,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {info?.workoutType || "Workout"}
+                        </span>
                       </div>
 
                       {/* ✅ Exercise preview line */}

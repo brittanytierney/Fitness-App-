@@ -23,6 +23,7 @@ export function requireAuth(req, res, next) {
     }
 
     req.userId = userId;
+    req.role = payload.role || "user";
     next();
   } catch (e) {
     const err = new Error("Unauthorized");

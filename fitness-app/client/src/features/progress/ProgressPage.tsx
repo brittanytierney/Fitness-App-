@@ -1,3 +1,4 @@
+// client/src/features/progress/ProgressPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { apiGetPRs, apiGetWeeklyVolume } from "../../api/workoutsApi";
@@ -56,35 +57,47 @@ export default function ProgressPage() {
   const from = useMemo(() => addDays(to, -7 * 12), [to]); // last 12 weeks
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       setLoading(true);
       setError("");
+
       try {
         const [prsRes, volRes] = await Promise.all([
           apiGetPRs(requireCompleted),
           apiGetWeeklyVolume(from, to, requireCompleted),
         ]);
 
+        if (cancelled) return;
+
         setPrs(Array.isArray(prsRes?.prs) ? prsRes.prs : []);
         setWeeks(Array.isArray(volRes?.weeks) ? volRes.weeks : []);
       } catch (e: unknown) {
+        if (cancelled) return;
+
         if (axios.isAxiosError(e)) {
           setError(
             (e.response?.data as { message?: string })?.message ||
-              "Failed to load progress",
+              `Failed to load progress (${e.response?.status || "?"})`,
           );
         } else if (e instanceof Error) {
           setError(e.message);
         } else {
           setError("Failed to load progress");
         }
+
+        setPrs([]);
+        setWeeks([]);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
-  }, [from, to, requireCompleted]);
 
-  const top10 = useMemo(() => prs.slice(0, 10), [prs]);
+    return () => {
+      cancelled = true;
+    };
+  }, [from, to, requireCompleted]);
 
   return (
     <div style={{ maxWidth: 900, margin: "40px auto", padding: 16 }}>
@@ -104,71 +117,111 @@ export default function ProgressPage() {
       </div>
 
       {loading && <p>Loading…</p>}
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+
+      {error && (
+        <div
+          style={{
+            marginTop: 12,
+            padding: 12,
+            borderRadius: 12,
+            border: "1px solid var(--border)",
+            background: "var(--card)",
+            color: "crimson",
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       {!loading && !error && (
         <>
           <h2 style={{ marginTop: 24 }}>Weekly Volume (last 12 weeks)</h2>
+
+          {/* Important: explicit height + minWidth prevents ResponsiveContainer -1 warnings */}
           <div
             style={{
-              height: 260,
-              border: "1px solid #ddd",
-              borderRadius: 10,
+              height: 280,
+              width: "100%",
+              minWidth: 0,
+              border: "1px solid var(--border)",
+              borderRadius: 16,
               padding: 12,
+              background: "var(--card)",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
             }}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={weeks}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="weekStart" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="totalVolume"
-                  stroke="var(--primary)"
-                  strokeWidth={3}
-                  dot={{ r: 3 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {weeks.length === 0 ? (
+              <p style={{ color: "var(--muted)" }}>
+                No volume data yet. Log some sets (reps/weight) to see this
+                chart.
+              </p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={weeks}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="weekStart" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="totalVolume"
+                    stroke="var(--primary)"
+                    strokeWidth={3}
+                    dot={{ r: 3 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
 
-          <h2 style={{ marginTop: 24 }}>Personal Records (Top 10 by e1RM)</h2>
-          <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-            {top10.length === 0 && <p>No PRs yet — log more sets!</p>}
+          <h2 style={{ marginTop: 24 }}>Personal Records (Top 10)</h2>
 
-            {top10.map((p) => (
-              <div
-                key={p.exerciseName}
-                style={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 16,
-                  padding: 16,
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
-                }}
-              >
+          <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+            {prs.length === 0 ? (
+              <p style={{ color: "var(--muted)" }}>
+                No PRs yet. Log workouts with reps/weight to generate PRs.
+              </p>
+            ) : (
+              prs.slice(0, 10).map((p) => (
                 <div
+                  key={p.exerciseName}
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
+                    border: "1px solid var(--border)",
+                    borderRadius: 16,
+                    padding: 16,
+                    background: "var(--card)",
+                    boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
                   }}
                 >
-                  <strong>{p.exerciseName}</strong>
-                  <span style={{ color: "#555" }}>
-                    e1RM: {Math.round(p.bestE1RM)}
-                  </span>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      alignItems: "baseline",
+                    }}
+                  >
+                    <strong>{p.exerciseName}</strong>
+                    <span style={{ color: "var(--muted)" }}>
+                      e1RM: {Math.round(p.bestE1RM)}
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 6,
+                      color: "var(--muted)",
+                      fontSize: 13,
+                    }}
+                  >
+                    Best weight: {p.bestWeight} × {p.bestWeightReps}
+                    {" • "}
+                    Best e1RM set: {p.bestE1RMSet.weight} × {p.bestE1RMSet.reps}{" "}
+                    on {p.bestE1RMSet.date}
+                  </div>
                 </div>
-                <div style={{ marginTop: 6, color: "#555", fontSize: 13 }}>
-                  Best weight: {p.bestWeight} × {p.bestWeightReps}
-                  {" • "}
-                  Best e1RM set: {p.bestE1RMSet.weight} × {p.bestE1RMSet.reps}{" "}
-                  on {p.bestE1RMSet.date}
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </>
       )}

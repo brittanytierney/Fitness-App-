@@ -9,6 +9,9 @@ import workoutsRoutes from "./routes/workouts.routes.js";
 import { notFound } from "./middleware/notFound.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import progressRoutes from "./routes/progress.routes.js";
+import mealPlansRoutes from "./routes/mealPlans.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
+
 
 
 export function createApp() {
@@ -43,6 +46,9 @@ export function createApp() {
 
   app.use(notFound);
   app.use(errorHandler);
+  app.use("/api/meal-plans", mealPlansRoutes);
+  app.use("/api/admin", adminRoutes);
+
   
 
 
