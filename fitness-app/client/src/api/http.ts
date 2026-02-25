@@ -10,6 +10,9 @@ export const http = axios.create({
   withCredentials: true, // keep if you use cookies / auth
 });
 
+// ✅ Alias for older imports expecting `api`
+export const api = http;
+
 /**
  * Attach or remove the Authorization header
  */
