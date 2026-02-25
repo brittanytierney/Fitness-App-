@@ -1,4 +1,4 @@
-// client/src/App.tsx
+
 import { NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import DashboardPage from "./features/dashboard/DashboardPage";
 import WorkoutDayPage from "./features/workouts/WorkoutDayPage";

@@ -141,7 +141,7 @@ export default function AdminMealPlansPage() {
   );
 
   function loadPlanIntoEditor() {
-    // Keep editor as JSON payload that the API expects for create/update
+   
     if (!selectedPlan) return;
     setJsonText(
       JSON.stringify(
@@ -150,8 +150,7 @@ export default function AdminMealPlansPage() {
           startDate: selectedPlan.startDate || "",
           endDate: selectedPlan.endDate || "",
           notes: selectedPlan.notes || "",
-          // admin list returns summaries; editor should include days for true edit
-          // we keep it simple: admins can paste full plan JSON when editing.
+          
           days: [],
         },
         null,
@@ -241,7 +240,7 @@ export default function AdminMealPlansPage() {
   }
 
   useEffect(() => {
-    // Optional: auto-search on mount if you want
+   
   }, []);
 
   return (

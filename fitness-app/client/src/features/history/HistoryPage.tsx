@@ -1,4 +1,4 @@
-// client/src/features/history/HistoryPage.tsx
+
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiGetRecentWorkouts } from "../../api/workoutsApi";
@@ -95,7 +95,7 @@ export default function HistoryPage() {
     };
   }, []);
 
-  // Quick lookup by date for calendar marking + click
+  
   const byDate = useMemo(() => {
     const m = new Map<string, any>();
     for (const d of days) m.set(d.date, d);
@@ -119,7 +119,7 @@ export default function HistoryPage() {
       cells.push({ dateStr: toYYYYMMDD(dt), dayNum: day });
     }
 
-    // pad to full weeks (optional, makes grid clean)
+    
     while (cells.length % 7 !== 0) cells.push({});
 
     return cells;
@@ -129,7 +129,7 @@ export default function HistoryPage() {
     const ym = `${anchorMonth.getFullYear()}-${pad2(anchorMonth.getMonth() + 1)}-`;
     return days
       .filter((d) => d.date.startsWith(ym))
-      .sort((a, b) => (a.date < b.date ? 1 : -1)); // newest first
+      .sort((a, b) => (a.date < b.date ? 1 : -1)); 
   }, [days, anchorMonth]);
 
   const location = useLocation();
@@ -149,12 +149,12 @@ export default function HistoryPage() {
 
   useEffect(() => {
     void loadRecent();
-    // this runs when you navigate back to /history
+   
   }, [location.key]);
 
 
   function openWorkout(dateStr: string) {
-    // Keep existing workout route — we just pass date as query param.
+    
     navigate(`/workouts?date=${encodeURIComponent(dateStr)}`);
   }
 

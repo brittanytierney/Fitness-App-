@@ -1,10 +1,10 @@
-// client/src/features/workouts/WorkoutDayPage.tsx
+
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { apiGetWorkoutDay, apiUpsertWorkoutDay } from "../../api/workoutsApi";
 
-// Local TS types (since workoutsApi is JS)
+
 type WorkoutSet = {
   reps: number;
   weight: number;
@@ -64,7 +64,7 @@ export default function WorkoutDayPage() {
 
   const safeEntries = useMemo(() => day?.entries ?? [], [day]);
 
-  // Keep URL ?date= in sync with state so History links + refresh work
+  
   useEffect(() => {
     setSearchParams(
       (prev) => {
@@ -83,7 +83,7 @@ export default function WorkoutDayPage() {
     try {
       const data = await apiGetWorkoutDay(selectedDate);
 
-      // Defensive normalize (so UI doesn’t break if backend returns nulls)
+     
       const normalized: WorkoutDay = {
         date: String(data?.date || selectedDate),
         workoutType: String(data?.workoutType || ""),
@@ -110,7 +110,7 @@ export default function WorkoutDayPage() {
 
   useEffect(() => {
     void load(date);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [date]);
 
   function updateWorkoutType(value: string) {
@@ -288,7 +288,6 @@ export default function WorkoutDayPage() {
             value={date}
             onChange={(e) => {
               const next = e.target.value;
-              // If input is cleared (rare), do nothing.
               if (!next || !isValidYYYYMMDD(next)) return;
               setDate(next);
             }}

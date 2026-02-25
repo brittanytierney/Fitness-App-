@@ -1,4 +1,4 @@
-// client/src/features/progress/ProgressPage.tsx
+
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { apiGetPRs, apiGetWeeklyVolume } from "../../api/workoutsApi";
@@ -54,7 +54,7 @@ export default function ProgressPage() {
   const [requireCompleted, setRequireCompleted] = useState(false);
 
   const to = todayYYYYMMDD();
-  const from = useMemo(() => addDays(to, -7 * 12), [to]); // last 12 weeks
+  const from = useMemo(() => addDays(to, -7 * 12), [to]); 
 
   useEffect(() => {
     let cancelled = false;

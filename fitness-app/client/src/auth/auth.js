@@ -1,4 +1,4 @@
-// client/src/auth/auth.js
+
 const KEY = "fitness_auth";
 
 export function setAuth(auth) {

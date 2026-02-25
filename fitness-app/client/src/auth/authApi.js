@@ -1,4 +1,4 @@
-// client/src/api/authApi.js
+
 import axios from "axios";
 
 const BASE = "http://localhost:5050";

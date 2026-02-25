@@ -39,16 +39,16 @@ export default function DashboardPage() {
     }
   }
 
-  // initial load
+  
   useEffect(() => {
     void loadRecentDays();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
-  // refresh when you navigate back to dashboard
+  
   useEffect(() => {
     void loadRecentDays();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [location.key]);
 
   const stats = useMemo(() => {
