@@ -1,7 +1,13 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { isLoggedIn } from "./auth";
+import React from "react";
 
-export default function RequireAuth({ children }: { children: JSX.Element }) {
+export default function RequireAuth({
+  children,
+}: {
+  children: React.ReactNode;
+})
+ {
   const loc = useLocation();
 
   if (!isLoggedIn()) {

@@ -17,3 +17,14 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+export const http = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5050",
+});
+
+export function setAuthToken(token: string | null) {
+  if (token) {
+    http.defaults.headers.common.Authorization = `Bearer ${token}`;
+  } else {
+    delete http.defaults.headers.common.Authorization;
+  }
+}

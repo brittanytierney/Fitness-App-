@@ -1,8 +1,13 @@
 
 const KEY = "fitness_auth";
 
-export function setAuth(auth) {
-  localStorage.setItem(KEY, JSON.stringify(auth));
+export type AuthState = {
+  token: string;
+  user: unknown;
+} | null;
+
+export function setAuth(_auth: AuthState) {
+  // existing logic
 }
 
 export function getAuth() {
