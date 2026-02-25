@@ -12,23 +12,15 @@ import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
-/**
- * CORS allowlist
- * - localhost dev
- * - your current Vercel deployment
- * - ANY *.vercel.app (previews + regenerated prod URLs)
- */
 const ALLOWLIST = new Set([
   "http://localhost:5173",
   "https://fitness-icojvffws-brittany-tierneys-projects.vercel.app",
 ]);
 
 function isAllowedOrigin(origin) {
-  if (!origin) return true; // curl/postman/server-to-server
-
+  if (!origin) return true;
   if (ALLOWLIST.has(origin)) return true;
 
-  // Allow any https://*.vercel.app
   try {
     const url = new URL(origin);
     if (url.protocol !== "https:") return false;
@@ -40,31 +32,24 @@ function isAllowedOrigin(origin) {
   return false;
 }
 
-const corsOptions = {
-  origin: (origin, cb) => {
-    if (isAllowedOrigin(origin)) return cb(null, true);
-    return cb(new Error(`CORS blocked for origin: ${origin}`));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-
-app.use(cors(corsOptions));
-
-/**
- * IMPORTANT:
- * Using "*" breaks on your deployed router/path-to-regexp stack.
- * Regex /.*/ is safe and matches all paths for OPTIONS.
- */
-app.options(/.*/, cors(corsOptions));
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (isAllowedOrigin(origin)) return cb(null, true);
+      return cb(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
+  }),
+);
 
 app.use(express.json());
 
 app.get("/health", (req, res) => {
   res.json({
     ok: true,
-    service: "fitness-app-backend",
     commit: process.env.RENDER_GIT_COMMIT || "unknown",
     time: new Date().toISOString(),
   });
