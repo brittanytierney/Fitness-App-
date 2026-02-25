@@ -1,20 +1,20 @@
 import "dotenv/config";
-import { createApp } from "./app.js";
+import app from "./app.js";
 import { connectDB } from "./config/db.js";
 
-
-
-const PORT = process.env.PORT ||5050;
-
 async function start() {
-  await connectDB(process.env.MONGODB_URI);
-  const app = createApp();
-  app.listen(PORT, () =>
-    console.log(`🚀 Server running on http://localhost:${PORT}`),
-  );
+  try {
+    const uri = process.env.DATABASE_URL;
+    if (!uri) throw new Error("DATABASE_URL is missing in server/.env");
+
+    await connectDB(uri);
+
+    const port = process.env.PORT || 5050;
+    app.listen(port, () => console.log(`✅ Server running on port ${port}`));
+  } catch (err) {
+    console.error("❌ Failed to start server:", err);
+    process.exit(1);
+  }
 }
 
-start().catch((err) => {
-  console.error("Failed to start server:", err);
-  process.exit(1);
-});
+start();
