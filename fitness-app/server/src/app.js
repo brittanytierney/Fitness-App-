@@ -15,11 +15,8 @@ const app = express();
 /**
  * CORS allowlist
  * - localhost dev
- * - specific Vercel URL (your current one)
- * - ANY *.vercel.app (so preview/regen URLs don't break auth)
- *
- * IMPORTANT:
- * If you later add a custom domain, add it here too.
+ * - your current Vercel deployment
+ * - ANY *.vercel.app (previews + regenerated prod URLs)
  */
 const ALLOWLIST = new Set([
   "http://localhost:5173",
@@ -27,18 +24,15 @@ const ALLOWLIST = new Set([
 ]);
 
 function isAllowedOrigin(origin) {
-  if (!origin) return true; // allow curl/postman/server-to-server
+  if (!origin) return true; // curl/postman/server-to-server
 
   if (ALLOWLIST.has(origin)) return true;
 
-  // Allow any Vercel preview/prod deploy URL
-  // Examples:
-  // https://whatever.vercel.app
-  // https://project-name-user.vercel.app
+  // Allow any https://*.vercel.app
   try {
-    const { hostname, protocol } = new URL(origin);
-    if (protocol !== "https:") return false;
-    if (hostname.endsWith(".vercel.app")) return true;
+    const url = new URL(origin);
+    if (url.protocol !== "https:") return false;
+    if (url.hostname.endsWith(".vercel.app")) return true;
   } catch {
     return false;
   }
@@ -46,26 +40,27 @@ function isAllowedOrigin(origin) {
   return false;
 }
 
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      if (isAllowedOrigin(origin)) return cb(null, true);
-      return cb(new Error(`CORS blocked for origin: ${origin}`));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+const corsOptions = {
+  origin: (origin, cb) => {
+    if (isAllowedOrigin(origin)) return cb(null, true);
+    return cb(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-// Respond to preflight
-app.options("*", cors());
+app.use(cors(corsOptions));
+
+/**
+ * IMPORTANT:
+ * Using "*" breaks on your deployed router/path-to-regexp stack.
+ * Regex /.*/ is safe and matches all paths for OPTIONS.
+ */
+app.options(/.*/, cors(corsOptions));
 
 app.use(express.json());
 
-/**
- * Health check endpoint to verify correct deploy + commit
- */
 app.get("/health", (req, res) => {
   res.json({
     ok: true,
